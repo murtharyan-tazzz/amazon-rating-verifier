@@ -114,9 +114,11 @@ def search_amazon(keywords, max_price):
             "SerpAPI key is not set. Set SERPAPI_KEY in Render's "
             "environment variables before searching."
         )
+    # The Amazon engine uses `k` for the keyword, not `q` — using `q`
+    # makes SerpAPI return HTTP 400 for a missing query parameter.
     params = {
         "engine": "amazon",
-        "q": keywords,
+        "k": keywords,
         "amazon_domain": "amazon.com",
         "api_key": SERPAPI_KEY,
     }
@@ -126,12 +128,18 @@ def search_amazon(keywords, max_price):
     except requests.exceptions.HTTPError as exc:
         # Never include the request URL in the error: it carries the
         # api_key as a query parameter and would leak it into the UI.
+        # Do include SerpAPI's own error string from the response body,
+        # which names the actual problem (e.g. invalid key, missing
+        # parameter) without containing the key.
         status = exc.response.status_code if exc.response is not None else "unknown"
+        detail = ""
+        try:
+            detail = exc.response.json().get("error", "") if exc.response is not None else ""
+        except Exception:
+            detail = ""
         raise RuntimeError(
-            f"SerpAPI request failed with HTTP {status}. "
-            "SerpAPI reports 401 as 'no valid API key provided', so "
-            "check that SERPAPI_KEY in Render matches the key shown "
-            "in the SerpAPI dashboard."
+            f"SerpAPI request failed with HTTP {status}"
+            + (f": {detail}" if detail else ".")
         ) from exc
     except requests.exceptions.RequestException as exc:
         raise RuntimeError("SerpAPI request failed (network error).") from exc
