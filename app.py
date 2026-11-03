@@ -6,7 +6,7 @@ Same rules as finder.py, behind a simple form:
   and a link to the Amazon product page.
 
 No search, purchase, or API call happens until the form is submitted.
-If Amazon credentials are missing, /api/search returns a plain
+If the SerpAPI key is missing, /api/search returns a plain
 configuration error instead of crashing, and /api/status shows which
 sources are configured (never the key values).
 """
