@@ -18,8 +18,8 @@
 </head>
 <body>
 <h1>Amazon Rating Verifier</h1>
-<p>Searches Amazon, keeps only products rated 4.3+ with 200+ reviews, then cross-checks the rating against Best Buy and Google Shopping. If Amazon is more than 0.6 stars higher than the other sources, it gets flagged SUSPICIOUS.</p>
-<p class="muted">Configured: Amazon: {{ 'yes' if status.amazon else 'not yet' }} &middot; Best Buy: {{ 'yes' if status.bestbuy else 'not yet' }} &middot; SerpAPI: {{ 'yes' if status.serpapi else 'not yet' }}</p>
+<p>Searches Amazon listings via SerpAPI, keeps only products rated 4.3+ with 200+ reviews, then cross-checks the rating against Best Buy and Google Shopping. If Amazon is more than 0.6 stars higher than the other sources, it gets flagged SUSPICIOUS.</p>
+<p class="muted">Configured: Amazon search (SerpAPI): {{ 'yes' if status.serpapi else 'not yet' }} &middot; Best Buy: {{ 'yes' if status.bestbuy else 'not yet' }}</p>
 <form id="f">
   <input type="text" id="q" placeholder="e.g. wireless earbuds" required>
   <input type="number" id="p" placeholder="Max $" min="1" step="0.01" required>
