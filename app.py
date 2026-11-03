@@ -11,9 +11,16 @@ configuration error instead of crashing, and /api/status shows which
 sources are configured (never the key values).
 """
 
+import re
+
 from flask import Flask, jsonify, render_template, request
 
 from finder import ConfigError, config_status, search_products
+
+
+def _sanitize_error(exc):
+    """Strip any api_key value from an error string before showing it."""
+    return re.sub(r"api_key=[^&\s\"']+", "api_key=[hidden]", str(exc))
 
 app = Flask(__name__)
 
@@ -44,8 +51,8 @@ def search():
         products = search_products(query, max_price)
     except ConfigError as exc:
         return jsonify({"error": str(exc)}), 503
-    except Exception as exc:  # Amazon / network errors surface as text
-        return jsonify({"error": f"Search failed: {exc}"}), 502
+    except Exception as exc:  # Search / network errors surface as text
+        return jsonify({"error": f"Search failed: {_sanitize_error(exc)}"}), 502
     return jsonify({
         "query": query,
         "max_price": max_price,

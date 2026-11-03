@@ -120,8 +120,21 @@ def search_amazon(keywords, max_price):
         "amazon_domain": "amazon.com",
         "api_key": SERPAPI_KEY,
     }
-    resp = requests.get("https://serpapi.com/search", params=params, timeout=30)
-    resp.raise_for_status()
+    try:
+        resp = requests.get("https://serpapi.com/search", params=params, timeout=30)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as exc:
+        # Never include the request URL in the error: it carries the
+        # api_key as a query parameter and would leak it into the UI.
+        status = exc.response.status_code if exc.response is not None else "unknown"
+        raise RuntimeError(
+            f"SerpAPI request failed with HTTP {status}. "
+            "SerpAPI reports 401 as 'no valid API key provided', so "
+            "check that SERPAPI_KEY in Render matches the key shown "
+            "in the SerpAPI dashboard."
+        ) from exc
+    except requests.exceptions.RequestException as exc:
+        raise RuntimeError("SerpAPI request failed (network error).") from exc
     data = resp.json()
     if data.get("error"):
         raise RuntimeError(f"SerpAPI error: {data['error']}")
