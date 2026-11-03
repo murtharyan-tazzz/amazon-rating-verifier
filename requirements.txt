@@ -1,4 +1,4 @@
 Flask>=3.0
 requests>=2.31
-amazon-paapi>=5.0
+python-amazon-paapi==5.2.0
 gunicorn>=21.0
